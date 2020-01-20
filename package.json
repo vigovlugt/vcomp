@@ -1,0 +1,8 @@
+{
+  "name": "vcomp",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "https://github.com/vigovlugt/vcomp.git",
+  "author": "Vigo Vlugt <vigovlugt@gmail.com>",
+  "license": "MIT"
+}
