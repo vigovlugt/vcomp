@@ -4,5 +4,14 @@
   "main": "index.js",
   "repository": "https://github.com/vigovlugt/vcomp.git",
   "author": "Vigo Vlugt <vigovlugt@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "@types/jest": "^24.9.0",
+    "jest": "^25.1.0",
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.7.5"
+  },
+  "dependencies": {
+    "ts-node": "^8.6.2"
+  }
 }
