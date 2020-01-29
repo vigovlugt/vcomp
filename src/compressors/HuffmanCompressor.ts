@@ -5,9 +5,8 @@ export default class HuffmanCompressor implements ICompressor {
   name: string = "HUFFMAN";
 
   compress(input: string) {
-    const i = "this is an example of a huffman tree";
-    const t = generateHuffmanTree(i);
-    const s = serializeHuffmanTree(i, t);
+    const t = generateHuffmanTree(input);
+    const s = serializeHuffmanTree(input, t);
     return s;
   }
 

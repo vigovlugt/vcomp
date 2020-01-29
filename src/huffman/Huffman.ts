@@ -1,17 +1,14 @@
 import { getFrequencies, getSortedKeys } from "../utils/Frequency";
-
-interface IHuffmanNode {
-  data?: string;
-  right?: IHuffmanNode;
-  left?: IHuffmanNode;
-  size: number;
-}
+import INode from "../trees/INode";
+import { treeToDict } from "../trees/BinaryTree";
+import { writeFileSync } from "fs";
+import { deserialize } from "v8";
 
 export function generateHuffmanTree(input: string) {
   const frequencies = getFrequencies(input);
   const sortedKeys = getSortedKeys(frequencies);
 
-  const nodes: IHuffmanNode[] = [];
+  const nodes: INode<string>[] = [];
 
   for (let i = 0; i < sortedKeys.length; i++) {
     const char = sortedKeys[i];
@@ -41,56 +38,60 @@ export function generateHuffmanTree(input: string) {
   return nodes[0];
 }
 
-export function serializeHuffmanTree(input: string, tree: IHuffmanNode) {
-  let serialized = "";
+export function serializeHuffmanTree(input: string, tree: INode<string>) {
+  let binaryString = "";
 
-  const dict = getHuffmanDict(tree);
+  const dict = treeToDict(tree);
 
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
-
-    serialized += dict[char];
+    binaryString += dict[char];
   }
 
-  serialized += "\n";
+  let binaries: string[] = [];
+
+  for (let i = 0; i < binaryString.length; i += 16) {
+    binaries.push(binaryString.substr(i, 16));
+  }
+
+  let utf8code = "";
+
+  for (let i = 0; i < binaries.length; i++) {
+    const binary = binaries[i];
+    utf8code += String.fromCharCode(parseInt(binary, 2));
+  }
+
+  let serializedDict = "";
+
   const entries = Object.entries(dict);
 
   for (let i = 0; i < entries.length; i++) {
     const [char, code] = entries[i];
-    serialized += code + "|" + char;
-    if (i !== entries.length - 1) serialized += "\n";
+    serializedDict += code + "|" + char;
+    if (i !== entries.length - 1) serializedDict += "\n";
   }
 
-  return serialized;
+  return utf8code + "\n" + serializedDict;
 }
 
-export function getHuffmanDict(tree: IHuffmanNode) {
-  return getHuffmanDictRecursive("", tree);
+export function deserializeBinary(serialized: string) {
+  let binary = "";
+  for (let i = 0; i < serialized.length; i++) {
+    const charCode = serialized.charCodeAt(i);
+    binary += ("0000000000000000" + charCode.toString(2)).substr(-16);
+  }
+  return binary;
 }
 
-function getHuffmanDictRecursive(baseCode: string, treePart: IHuffmanNode) {
-  let dict: { [char: string]: string } = {};
-  if (treePart.data) {
-    dict[treePart.data] = baseCode;
-  } else {
-    if (treePart.right) {
-      dict = {
-        ...dict,
-        ...getHuffmanDictRecursive(baseCode + "0", treePart.right)
-      };
-    }
-    if (treePart.left) {
-      dict = {
-        ...dict,
-        ...getHuffmanDictRecursive(baseCode + "1", treePart.left)
-      };
-    }
+export function deserializeTreeDict(lines: string[]) {
+  const dict: { [code: string]: string } = {};
+  for (let i = 0; i < lines.length; i++) {
+    const [binary, char] = lines[i].split("|");
+    dict[binary] = char;
   }
   return dict;
 }
 
-const i = "this is an example of a huffman tree";
-const t = generateHuffmanTree(i);
-const s = serializeHuffmanTree(i, t);
-
-console.log(s);
+export function deserializeWithCodeAndDict(code: string, dict: string) {
+  code;
+}
