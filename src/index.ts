@@ -14,6 +14,7 @@ function main(input: string) {
   const decoded = decodeHuffman(s.binary, s.dict);
   console.log("VALID:", decoded == input);
 }
+
 main(
   readFileSync(join(__dirname, "..", "texts", "huffmanWiki.txt")).toString()
 );
