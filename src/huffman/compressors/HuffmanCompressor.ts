@@ -1,13 +1,13 @@
 import ICompressor from "./ICompressor";
-import { generateHuffmanTree, serializeHuffmanTree } from "../huffman/Huffman";
+import { generateHuffmanTree, encodeHuffman, decodeHuffman } from "../Huffman";
 
 export default class HuffmanCompressor implements ICompressor {
   name: string = "HUFFMAN";
 
   compress(input: string) {
     const t = generateHuffmanTree(input);
-    const s = serializeHuffmanTree(input, t);
-    return s;
+    const s = encodeHuffman(input, t);
+    return s.binary;
   }
 
   decompress(input: string) {

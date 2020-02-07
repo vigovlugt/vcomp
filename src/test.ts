@@ -1,4 +1,4 @@
-import ICompressor from "./compressors/ICompressor";
+import ICompressor from "./huffman/compressors/ICompressor";
 
 function testCompressor(compressor: ICompressor) {
   test(compressor.name, () => {

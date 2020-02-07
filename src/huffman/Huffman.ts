@@ -1,8 +1,6 @@
 import { getFrequencies, getSortedKeys } from "../utils/Frequency";
 import INode from "../trees/INode";
 import { treeToDict } from "../trees/BinaryTree";
-import { writeFileSync } from "fs";
-import { deserialize } from "v8";
 
 export function generateHuffmanTree(input: string) {
   const frequencies = getFrequencies(input);
@@ -38,40 +36,46 @@ export function generateHuffmanTree(input: string) {
   return nodes[0];
 }
 
-export function serializeHuffmanTree(input: string, tree: INode<string>) {
-  let binaryString = "";
+export function encodeHuffman(input: string, tree: INode<string>) {
+  let binary = "";
 
   const dict = treeToDict(tree);
 
   for (let i = 0; i < input.length; i++) {
     const char = input[i];
-    binaryString += dict[char];
+    binary += dict[char];
   }
 
-  let binaries: string[] = [];
+  return { binary, dict };
+}
 
-  for (let i = 0; i < binaryString.length; i += 16) {
-    binaries.push(binaryString.substr(i, 16));
+export function decodeHuffman(
+  binary: string,
+  codebyChar: { [char: string]: string }
+) {
+  let decoded = "";
+
+  const charByCode = invertDict(codebyChar);
+
+  while (binary.length > 0) {
+    let curCode = "";
+    let i = 0;
+    do {
+      curCode += binary[i];
+      i++;
+    } while (!(curCode in charByCode));
+    binary = binary.slice(i, binary.length);
+    decoded += charByCode[curCode];
   }
+  return decoded;
+}
 
-  let utf8code = "";
-
-  for (let i = 0; i < binaries.length; i++) {
-    const binary = binaries[i];
-    utf8code += String.fromCharCode(parseInt(binary, 2));
+export function invertDict(dict: any) {
+  var ret: any = {};
+  for (var key in dict) {
+    ret[dict[key]] = key;
   }
-
-  let serializedDict = "";
-
-  const entries = Object.entries(dict);
-
-  for (let i = 0; i < entries.length; i++) {
-    const [char, code] = entries[i];
-    serializedDict += code + "|" + char;
-    if (i !== entries.length - 1) serializedDict += "\n";
-  }
-
-  return utf8code + "\n" + serializedDict;
+  return ret;
 }
 
 export function deserializeBinary(serialized: string) {
@@ -90,8 +94,4 @@ export function deserializeTreeDict(lines: string[]) {
     dict[binary] = char;
   }
   return dict;
-}
-
-export function deserializeWithCodeAndDict(code: string, dict: string) {
-  code;
 }
